@@ -75,8 +75,7 @@ Mitron, witness the heavy impact of these
 *  [Action Clip 8](VID-20261105-WA0069.mp4)
 
 ---
-
-## 🔥 Elite Badges
+##  Elite Badges
 
 * Asset 1: `STK-20261105-WA0154.webp`
 * Asset 2: `STK-20261105-WA0156.webp`
@@ -84,5 +83,4 @@ Mitron, witness the heavy impact of these
 * Asset 4: `STK-20261105-WA0160.webp`
 * Asset 5: `STK-20261105-WA0161.webp`
 
----
-The truth wins. Stand strong. 💪
+
