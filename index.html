@@ -359,8 +359,7 @@
     Sources say the chai bhaiya in the stands demanded compensation for broken cups ★
     A stray cow halted the fight and was later seen eating a placard ★
     Exit polls, as usual, were wrong ★
-    88 new moments uploaded, critics left speechless ★
-    
+    126 new moments uploaded, critics left speechless ★
   </span></span>
 </div>
 
@@ -398,15 +397,62 @@
     155
   ];
 
+  // WhatsApp drop: exact file names (spaces and brackets are handled automatically)
+  const extraFiles = [
+    "WhatsApp Image 2026-11-05 at 23.13.46.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.46 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.45.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.45 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.45 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.44.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.44 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.44 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.43.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.43 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.43 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.42.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.42 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.41.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.41 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.41 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.40.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.40 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.40 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.39.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.39 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.38.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.38 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.38 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.37.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.36.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.36 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.35.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.35 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.34.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.34 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.34 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.33.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.33 (2).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.13.33 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.12.50.jpeg",
+    "WhatsApp Image 2026-11-05 at 23.12.50 (1).jpeg",
+    "WhatsApp Image 2026-11-05 at 23.12.49.jpeg"
+  ];
+
   const groups = [
-    { name: "SANSAD STAGE",     test: n => n <= 59 },
-    { name: "JANTAR MANTAR",    test: n => n >= 70 && n <= 100 },
-    { name: "DESI SADAK",       test: n => n >= 101 && n <= 134 },
-    { name: "FINAL BOSS",       test: n => n >= 155 }
+    { name: "SANSAD STAGE",     test: it => it.n !== null && it.n <= 59 },
+    { name: "JANTAR MANTAR",    test: it => it.n !== null && it.n >= 70 && it.n <= 100 },
+    { name: "DESI SADAK",       test: it => it.n !== null && it.n >= 101 && it.n <= 134 },
+    { name: "FINAL BOSS",       test: it => it.n !== null && it.n >= 155 },
+    { name: "WHATSAPP DROP",    test: it => it.n === null }
   ];
 
   const pad = n => String(n).padStart(4, "0");
   const file = n => "IMG-20261105-WA" + pad(n) + ".jpg";
+
+  // every item in the gallery: { n: number or null, src, label }
+  const items = nums.map(n => ({ n, src: file(n), label: pad(n) }))
+    .concat(extraFiles.map((f, i) => ({ n: null, src: encodeURI(f), label: "W" + String(i + 1).padStart(2, "0") })));
 
   const root = document.getElementById("groups");
   const lb = document.getElementById("lb");
@@ -415,16 +461,16 @@
   let current = 0;
 
   function show(i) {
-    current = (i + nums.length) % nums.length;
-    lbImg.src = file(nums[current]);
-    lbImg.alt = "Moment " + pad(nums[current]);
-    lbCount.textContent = (current + 1) + " / " + nums.length;
+    current = (i + items.length) % items.length;
+    lbImg.src = items[current].src;
+    lbImg.alt = "Moment " + items[current].label;
+    lbCount.textContent = (current + 1) + " / " + items.length;
   }
   function openLb(i) { show(i); lb.classList.add("open"); }
   function closeLb() { lb.classList.remove("open"); }
 
   groups.forEach((g, gi) => {
-    const list = nums.filter(g.test);
+    const list = items.filter(g.test);
     if (!list.length) return;
 
     const d = document.createElement("details");
@@ -437,18 +483,18 @@
 
     const grid = document.createElement("div");
     grid.className = "gallery";
-    list.forEach(n => {
+    list.forEach(it => {
       const b = document.createElement("button");
-      b.setAttribute("aria-label", "Open " + pad(n));
+      b.setAttribute("aria-label", "Open " + it.label);
       const img = document.createElement("img");
-      img.src = file(n);
-      img.alt = "Moment " + pad(n);
+      img.src = it.src;
+      img.alt = "Moment " + it.label;
       img.loading = "lazy";
       const tag = document.createElement("span");
       tag.className = "no";
-      tag.textContent = "#" + pad(n);
+      tag.textContent = "#" + it.label;
       b.append(img, tag);
-      b.addEventListener("click", () => openLb(nums.indexOf(n)));
+      b.addEventListener("click", () => openLb(items.indexOf(it)));
       grid.appendChild(b);
     });
     d.appendChild(grid);
