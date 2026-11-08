@@ -319,7 +319,71 @@
     100% { opacity: 0; transform: translate(-50%, -190%) rotate(var(--r)) scale(1); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .pop, .fx path, summary .tap { animation: none !important; }
+    .pop, .fx path, summary .tap, .sticker, .sticker img, .sticker::after, .sparkles span { animation: none !important; }
+  }
+
+  /* ---------- Diwali sticker: glitter + slow sluggish shake ---------- */
+  .diwali { max-width: 1000px; margin: 0 auto; padding: 30px 14px 0; text-align: center; }
+  .sticker-wrap { position: relative; display: inline-block; padding: 26px; }
+  .sticker {
+    position: relative; display: inline-block;
+    width: min(78vw, 340px);
+    cursor: pointer;
+    transform-origin: 50% 90%;
+    animation: sluggish 3.6s cubic-bezier(.45, .05, .55, .95) infinite;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sticker img {
+    display: block; width: 100%; height: auto;
+    animation: glow 2.4s ease-in-out infinite;
+  }
+  .sticker .fallback {
+    display: none;
+    font-family: "Bangers", Impact, sans-serif; font-size: 2.6rem; letter-spacing: 3px;
+    color: var(--gold); border: 4px dashed var(--gold); padding: 30px 16px;
+    animation: glow 2.4s ease-in-out infinite;
+  }
+  /* glitter sweep clipped to the sticker's own shape */
+  .sticker.glitter::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(110deg, transparent 38%, rgba(255,255,255,.95) 50%, transparent 62%),
+      radial-gradient(circle at 20% 30%, rgba(255,230,120,.9) 0 2px, transparent 3px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+      radial-gradient(circle at 45% 80%, rgba(255,207,58,.9) 0 2px, transparent 3px);
+    background-size: 250% 100%, 60px 60px, 47px 47px, 71px 71px;
+    background-repeat: no-repeat, repeat, repeat, repeat;
+    -webkit-mask: url("diwali.png") center / contain no-repeat;
+            mask: url("diwali.png") center / contain no-repeat;
+    mix-blend-mode: screen;
+    animation: sweep 2.8s linear infinite, tinkle 1.2s steps(2) infinite;
+  }
+  @keyframes sweep { from { background-position: 150% 0, 0 0, 0 0, 0 0; } to { background-position: -150% 0, 0 0, 0 0, 0 0; } }
+  @keyframes tinkle { 50% { filter: brightness(1.6); } }
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 6px rgba(255,207,58,.45)) drop-shadow(0 0 14px rgba(255,122,26,.3)); }
+    50%      { filter: drop-shadow(0 0 16px rgba(255,230,120,.95)) drop-shadow(0 0 34px rgba(255,122,26,.7)); }
+  }
+  /* slow, heavy shake with long pauses */
+  @keyframes sluggish {
+    0%, 100% { transform: rotate(0) translate(0, 0); }
+    12% { transform: rotate(-4deg) translate(-9px, 2px); }
+    24% { transform: rotate(3.5deg) translate(8px, -3px); }
+    36% { transform: rotate(-2.5deg) translate(-5px, 2px); }
+    48% { transform: rotate(1.5deg) translate(3px, -1px); }
+    60% { transform: rotate(0) translate(0, 0); }
+  }
+  .sticker.kick { animation-duration: 1.2s; }
+
+  .sparkles { position: absolute; inset: 0; pointer-events: none; }
+  .sparkles span {
+    position: absolute; line-height: 1; opacity: 0;
+    color: var(--gold); text-shadow: 0 0 8px rgba(255,230,120,.9);
+    animation: twinkle var(--d, 2s) ease-in-out var(--delay, 0s) infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(.2) rotate(0deg); }
+    50%      { opacity: 1; transform: scale(1) rotate(90deg); }
   }
 </style>
 </head>
@@ -362,6 +426,19 @@
     126 new moments uploaded, critics left speechless ★
   </span></span>
 </div>
+
+<section class="diwali">
+  <h2 class="stage-title">DIWALI SPECIAL 🪔</h2>
+  <div class="sticker-wrap" id="stickerWrap">
+    <div class="sparkles" id="sparkles"></div>
+    <div class="sticker glitter" id="sticker">
+      <img src="diwali.png" alt="Happy Diwali sticker"
+           onerror="this.style.display='none';document.getElementById('stickerFallback').style.display='block';document.getElementById('sticker').classList.remove('glitter');">
+      <div class="fallback" id="stickerFallback">HAPPY DIWALI</div>
+    </div>
+  </div>
+  <p class="hint">Tap the sticker for extra sparkle ✨</p>
+</section>
 
 <main id="arena">
   <h2 class="stage-title">SELECT YOUR ROUND</h2>
@@ -641,6 +718,33 @@
     document.body.appendChild(pop);
     setTimeout(() => pop.remove(), 900);
   }
+
+  // Diwali sticker sparkles
+  (function () {
+    const box = document.getElementById("sparkles");
+    const sticker = document.getElementById("sticker");
+    const glyphs = ["✦", "✧", "✨", "★", "✶"];
+    const colors = ["#ffcf3a", "#fff3e0", "#ff7a1a", "#ffe680"];
+    function spark(extra) {
+      const s = document.createElement("span");
+      s.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      s.style.left = rnd(-2, 96) + "%";
+      s.style.top = rnd(-2, 96) + "%";
+      s.style.fontSize = rnd(.8, 1.9) + "rem";
+      s.style.color = colors[Math.floor(Math.random() * colors.length)];
+      s.style.setProperty("--d", rnd(1.2, 2.8) + "s");
+      s.style.setProperty("--delay", extra ? "0s" : rnd(0, 2.5) + "s");
+      if (extra) { s.style.animationIterationCount = "1"; setTimeout(() => s.remove(), 3000); }
+      box.appendChild(s);
+    }
+    for (let i = 0; i < 22; i++) spark(false);
+    sticker.addEventListener("pointerdown", () => {
+      whoosh();
+      for (let i = 0; i < 14; i++) spark(true);
+      sticker.classList.add("kick");
+      setTimeout(() => sticker.classList.remove("kick"), 1500);
+    });
+  })();
 
   document.addEventListener("pointerdown", e => {
     const el = e.target.closest("button, summary");
